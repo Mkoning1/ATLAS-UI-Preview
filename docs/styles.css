@@ -1,0 +1,112 @@
+:root {
+  --base: #04080f;
+  --steel: #1a3049;
+  --steel-line: rgba(120, 170, 210, 0.28);
+  --cyan: #00e5ff;
+  --white: #dbf2ff;
+  --amber: #ffb000;
+  --red: #ff3333;
+  --text: #cfe6f5;
+  --text-dim: #8fb0c6;
+  --panel-bg: rgba(8, 20, 34, 0.55);
+  --accent: var(--cyan);
+  --core-r: min(24vmin, 240px);
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; height: 100%; background: var(--base); color: var(--text); overflow: hidden;
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+.sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+#core { position: fixed; inset: 0; width: 100%; height: 100%; display: block; touch-action: none; }
+#stage { position: fixed; inset: 0; perspective: 1200px; pointer-events: none; }
+#stage > * { pointer-events: auto; }
+
+/* Alert tint follows state (set on <body data-state>) */
+body[data-state="WARNING"] { --accent: var(--amber); }
+body[data-state="CRITICAL"] { --accent: var(--red); }
+
+.activator { position: absolute; left: 50%; top: 50%; width: calc(var(--core-r) * 1.1); height: calc(var(--core-r) * 1.1);
+  transform: translate(-50%, -50%); border-radius: 50%; border: 0; background: transparent; cursor: pointer; }
+.activator:focus-visible { outline: 2px solid var(--white); outline-offset: 4px; }
+
+/* HUD rings: only visible when ATLAS is working/presenting */
+.rings { position: fixed; left: 50%; top: 50%; width: calc(var(--core-r) * 3); height: calc(var(--core-r) * 3);
+  transform: translate(-50%, -50%); pointer-events: none; opacity: 0; transition: opacity 0.8s ease; }
+.rings::before, .rings::after { content: ""; position: absolute; inset: 0; border-radius: 50%;
+  border: 1px solid var(--accent); opacity: 0.25; }
+.rings::after { inset: 12%; border-style: dashed; opacity: 0.18; animation: spin 40s linear infinite; }
+body[data-hud="1"] .rings { opacity: 1; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.command { position: absolute; left: 50%; top: calc(50% + var(--core-r) * 0.62); width: min(520px, calc(100vw - 32px));
+  transform: translateX(-50%); padding: 10px 12px; background: var(--panel-bg); backdrop-filter: blur(10px);
+  border: 1px solid var(--steel-line); border-top-color: var(--accent); border-radius: 14px;
+  box-shadow: 0 0 28px rgba(0, 229, 255, 0.12); animation: rise 0.25s ease-out; }
+.command[hidden] { display: none; }
+.command textarea { width: 100%; resize: none; background: transparent; border: 0; color: var(--white); font: inherit; font-size: 1rem; outline: none; min-height: 1.6em; max-height: 8em; }
+.command:focus-within { border-color: var(--accent); }
+.cmd-row { display: flex; align-items: center; gap: 8px; }
+.cmd-error { flex: 1; font-size: 0.8rem; color: var(--amber); }
+.icon-btn { display: inline-flex; width: 36px; height: 36px; align-items: center; justify-content: center; border-radius: 50%; cursor: pointer; color: var(--text-dim); }
+.icon-btn:hover, #cmd-file:focus-visible + * { color: var(--white); }
+.icon-btn svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; }
+.send { background: transparent; color: var(--white); border: 1px solid var(--accent); border-radius: 999px; padding: 6px 16px; font: inherit; cursor: pointer; }
+.send:hover, .send:focus-visible { background: rgba(0, 229, 255, 0.14); outline: none; }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; margin: 6px 0; }
+.chip { font-size: 0.75rem; padding: 2px 8px; border: 1px solid var(--steel-line); border-radius: 999px; color: var(--text-dim); }
+@keyframes rise { from { opacity: 0; transform: translate(-50%, 8px); } to { opacity: 1; transform: translate(-50%, 0); } }
+
+/* Spatial task panels */
+#stage > .panels { position: absolute; inset: 0; transform-style: preserve-3d; pointer-events: none; }
+.panel { position: absolute; width: min(300px, 44vw); padding: 12px 14px; pointer-events: auto; cursor: grab;
+  background: var(--panel-bg); backdrop-filter: blur(8px); border: 1px solid var(--steel-line);
+  border-left: 2px solid var(--accent); border-radius: 10px; color: var(--text);
+  transition: opacity 0.6s ease, transform 0.6s ease; touch-action: none; }
+.panel:focus-visible, .panel:focus-within { outline: 2px solid var(--white); outline-offset: 2px; }
+.panel.tone-warning { --accent: var(--amber); }
+.panel.tone-critical { --accent: var(--red); }
+.panel h2 { margin: 0 0 4px; font-size: 0.95rem; font-weight: 500; color: var(--white); }
+.panel .concise { font-size: 0.85rem; color: var(--text-dim); }
+.panel .phase { display: block; font-size: 0.7rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--accent); max-height: 0; opacity: 0; overflow: hidden; transition: all 0.25s; }
+.panel:hover .phase, .panel:focus-within .phase, .panel[data-focus="1"] .phase { max-height: 2em; opacity: 1; }
+.panel .result { margin: 8px 0 0; font-size: 0.9rem; white-space: pre-wrap; }
+.panel .sim { margin: 6px 0 0; font-size: 0.7rem; color: var(--amber); }
+.panel .sections { list-style: none; margin: 8px 0 0; padding: 0; font-size: 0.78rem; }
+.panel .sections li::before { content: "\25E6\00a0"; color: var(--accent); }
+.panel .sections li[data-active="0"] { opacity: 0.5; }
+.panel .acts { display: flex; gap: 8px; margin-top: 8px; }
+.panel button, .sheet button, .toolbar button { background: transparent; color: var(--text); border: 1px solid var(--steel-line); border-radius: 999px; padding: 3px 12px; font: inherit; font-size: 0.78rem; cursor: pointer; }
+.panel button:hover, .panel button:focus-visible, .sheet button:hover, .sheet button:focus-visible, .toolbar button:hover, .toolbar button:focus-visible { border-color: var(--accent); color: var(--white); outline: none; }
+.panel[data-state="entering"] { opacity: 0; }
+.panel[data-state="folding"] { opacity: 0; transform: translate3d(var(--x, 0), var(--y, 0), -80px) scale(0.9) !important; }
+.panel[data-state="dissolving"] { opacity: 0; filter: blur(8px); transform: translate3d(0, 0, -260px) scale(0.4) !important; transition-duration: 1.4s; }
+.stack-chip { position: absolute; right: 16px; bottom: 56px; pointer-events: auto; font-size: 0.75rem; color: var(--text-dim); border: 1px solid var(--steel-line); border-radius: 999px; padding: 3px 12px; background: var(--panel-bg); }
+
+/* History + inspector sheets */
+.sheet { position: absolute; left: 50%; top: 50%; width: min(620px, calc(100vw - 32px)); max-height: 70vh; overflow: auto; transform: translate(-50%, -50%) translateZ(40px);
+  padding: 16px; background: rgba(6, 16, 28, 0.82); backdrop-filter: blur(12px); border: 1px solid var(--steel-line); border-radius: 12px; }
+.sheet[hidden] { display: none; }
+.sheet h2 { margin: 0 0 8px; font-size: 1rem; font-weight: 500; color: var(--white); }
+.sheet ul { list-style: none; margin: 0; padding: 0; }
+.sheet li { display: flex; justify-content: space-between; gap: 8px; padding: 6px 0; border-bottom: 1px solid rgba(120, 170, 210, 0.12); font-size: 0.85rem; }
+.sheet pre { margin: 6px 0; font-size: 0.72rem; color: var(--text-dim); white-space: pre-wrap; word-break: break-word; }
+.sheet .ro { font-size: 0.72rem; color: var(--accent); letter-spacing: 0.08em; text-transform: uppercase; }
+
+/* Toolbar: appears only on interaction/focus, never permanently */
+.toolbar { position: fixed; left: 50%; bottom: max(12px, env(safe-area-inset-bottom)); transform: translateX(-50%); display: flex; gap: 8px;
+  opacity: 0; transition: opacity 0.4s; pointer-events: none; }
+.toolbar:focus-within, body[data-chrome="1"] .toolbar { opacity: 1; pointer-events: auto; }
+
+@media (max-width: 640px) {
+  :root { --core-r: min(30vmin, 170px); }
+  .panel { width: calc(100vw - 32px); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .rings::after { animation: none; }
+  .command { animation: none; }
+  .panel, .rings { transition: opacity 0.2s; }
+  .panel[data-state="folding"], .panel[data-state="dissolving"] { transform: none !important; filter: none; }
+}
+/* Reduced motion keeps functional state cues via colour/opacity/outline, not movement. */
+body[data-state="WORKING"] .activator { box-shadow: inset 0 0 0 1px rgba(0, 229, 255, 0.0); }
+body[data-quality="minimal"] .panel, body[data-quality="minimal"] .command, body[data-quality="minimal"] .sheet { backdrop-filter: none; background: rgba(8, 20, 34, 0.9); }
