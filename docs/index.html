@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self' blob: data:; connect-src 'self'; base-uri 'none'; form-action 'none'">
+<meta name="referrer" content="no-referrer">
+<meta name="color-scheme" content="dark">
+<title>Control Surface</title>
+<link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+<canvas id="core" aria-hidden="true"></canvas>
+<div id="rings" class="rings" aria-hidden="true"></div>
+
+<main id="stage">
+  <button id="activator" class="activator" type="button" aria-label="Open command input" aria-expanded="false" aria-controls="command"></button>
+
+  <form id="command" class="command" hidden autocomplete="off" aria-label="Command to ATLAS">
+    <label class="sr-only" for="cmd-text">Command</label>
+    <textarea id="cmd-text" rows="1" maxlength="8000" placeholder="Ask ATLAS" spellcheck="true"></textarea>
+    <div id="cmd-chips" class="chips" aria-live="polite"></div>
+    <div class="cmd-row">
+      <label class="icon-btn" for="cmd-file" title="Attach a file or image"><span class="sr-only">Attach a file or image</span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 12.5l6-6a3.5 3.5 0 015 5l-8 8a5 5 0 01-7-7l7.5-7.5"/></svg></label>
+      <input id="cmd-file" type="file" class="sr-only" multiple accept="image/png,image/jpeg,image/gif,image/webp,text/plain,text/markdown,text/csv,application/pdf,application/json">
+      <span id="cmd-error" class="cmd-error" role="alert"></span>
+      <button class="send" type="submit">Send</button>
+    </div>
+  </form>
+
+  <section id="panels" class="panels" aria-label="Tasks"></section>
+  <section id="history" class="sheet" hidden aria-label="History"></section>
+  <section id="inspector" class="sheet" hidden aria-label="Technical inspector"></section>
+</main>
+
+<nav id="toolbar" class="toolbar" aria-label="ATLAS controls">
+  <button type="button" data-act="history" aria-keyshortcuts="H">History</button>
+  <button type="button" data-act="inspect" aria-keyshortcuts="I">Inspector</button>
+  <button type="button" data-act="sound" aria-pressed="true" aria-keyshortcuts="M">Sound</button>
+  <button type="button" data-act="quality" aria-label="Visual quality">Quality</button>
+</nav>
+<div id="live" class="sr-only" role="status" aria-live="polite"></div>
+<noscript><p style="color:#cfe;padding:2rem">This control surface needs JavaScript.</p></noscript>
+<script type="module" src="./src/main.js"></script>
+</body>
+</html>
