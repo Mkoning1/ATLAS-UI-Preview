@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#101920">
+  <meta name="description" content="Adventure Atlas — een persoonlijk archief van reizen, expedities en challenges.">
+  <title>Adventure Atlas — Your World, Your Story</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="anonymous">
+  <link rel="stylesheet" href="./styles.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin="anonymous"></script>
+  <script defer src="./app.js"></script>
+</head>
+<body>
+  <div class="shell">
+    <aside class="sidebar" id="sidebar">
+      <header class="identity">
+        <div class="logo" aria-hidden="true">A<span>•</span></div>
+        <div><div class="eyebrow">PERSONAL EXPLORATION LOG</div><strong>ADVENTURE <span>ATLAS</span></strong></div>
+        <button class="close-nav ghost-icon" id="closeNav" aria-label="Sluit menu">×</button>
+      </header>
+
+      <div class="sidebar-scroll">
+        <section class="intro">
+          <div class="kicker"><span class="green-dot"></span> THE JOURNEY STARTS HERE</div>
+          <h1>Go where<br><em>curiosity</em> leads.</h1>
+          <p>Een wereld vol verhalen. Niet alleen plekken verzamelen — maar herinneringen maken.</p>
+        </section>
+
+        <section class="stats" aria-label="Statistieken">
+          <div><strong id="stat-adventures">0</strong><span>AVONTUREN</span></div>
+          <div><strong id="stat-countries">0</strong><span>LANDEN</span></div>
+          <div><strong id="stat-challenges">0</strong><span>CHALLENGES</span></div>
+        </section>
+
+        <section class="explorer" aria-label="Avonturen ontdekken">
+          <div class="section-header"><h2>Explore the journey</h2><span id="resultCount">0</span></div>
+          <div class="filters" role="group" aria-label="Filter categorieën">
+            <button class="chip active" data-filter="all" aria-pressed="true">Alles</button>
+            <button class="chip" data-filter="completed" aria-pressed="false">Voltooid</button>
+            <button class="chip" data-filter="expedition" aria-pressed="false">Expedities</button>
+            <button class="chip" data-filter="bucketlist" aria-pressed="false">Bucketlist</button>
+            <button class="chip" data-filter="milestone" aria-pressed="false">Milestones</button>
+          </div>
+          <label class="search"><span aria-hidden="true">⌕</span><input id="searchInput" type="search" placeholder="Zoek avontuur of locatie..." aria-label="Zoek avonturen"></label>
+          <div class="adventure-list" id="adventureList" aria-live="polite"></div>
+        </section>
+      </div>
+      <div class="sidebar-footer">
+        <button class="primary-button" id="newAdventure">＋ Nieuw avontuur</button>
+        <div class="data-actions">
+          <button id="exportPublic" title="Download publiceerbare data">↓ Publiek exporteren</button>
+          <button id="backupAll" title="Bewaar ook privédrafts in een back-up">↓ Back-up</button>
+          <button id="importDataBtn">↑ JSON importeren</button>
+          <button id="importGpxBtn">↝ GPX importeren</button>
+        </div>
+        <input type="file" id="importData" accept=".json,application/json" hidden>
+        <input type="file" id="importGpx" accept=".gpx,application/gpx+xml,text/xml,application/xml" hidden>
+        <small class="footnote">Nieuwe avonturen blijven op dit apparaat totdat je ze exporteert en publiceert. <a href="./README.md" target="_blank" rel="noopener">Handleiding</a></small>
+      </div>
+    </aside>
+
+    <main class="stage">
+      <div id="map" role="application" aria-label="Interactieve wereldkaart met avonturen"></div>
+      <div class="map-vignette" aria-hidden="true"></div>
+      <div class="topbar">
+        <div class="topbar-left">
+          <button class="mobile-nav icon-button" id="openNav" aria-label="Open menu">☰</button>
+          <span class="world-tag">◎ WORLD EXPLORER</span>
+          <span class="topline">YOUR WORLD. YOUR STORY.</span>
+        </div>
+        <div class="topbar-actions">
+          <button id="fitAll" class="map-button" title="Toon alle locaties">⊙ <span>Alle locaties</span></button>
+          <button id="cinemaBtn" class="map-button accent" title="Gebruik de kaart voor je video">◧ <span>Video mode</span></button>
+        </div>
+      </div>
+      <div class="map-bottom">
+        <div class="map-hint"><span class="green-dot"></span><span id="mapHint">Selecteer een marker om het verhaal te openen.</span></div>
+        <div class="legend" aria-label="Kaartlegenda"><span><i class="legend-dot completed"></i> Bezocht</span><span><i class="legend-dot wishlist"></i> Bucketlist</span><span><i class="legend-dot future"></i> Gepland</span></div>
+      </div>
+
+      <article class="story-panel" id="storyPanel" hidden aria-labelledby="storyTitle">
+        <button id="closeStory" class="panel-close" aria-label="Sluit verhaal">×</button>
+        <div class="story-type" id="storyType"></div>
+        <h2 id="storyTitle"></h2>
+        <div class="story-place" id="storyPlace"></div>
+        <p id="storyDescription"></p>
+        <div class="story-meta" id="storyMeta"></div>
+        <p class="story-note" id="storyNote"></p>
+        <button class="secondary-button" id="showOnMap">◎ Toon op kaart</button>
+      </article>
+
+      <div class="cinema-overlay" id="cinemaOverlay" hidden>
+        <div class="cinema-head"><div class="cinema-brand">A<span>•</span> <strong>ADVENTURE ATLAS</strong></div><div>YOUR STORY, ONE PIN AT A TIME</div></div>
+        <div class="cinema-story"><span id="cinemaEyebrow">THE JOURNEY</span><h2 id="cinemaTitle">Explore the unknown</h2><p id="cinemaSubtitle">A world of stories is waiting.</p></div>
+        <div class="cinema-controls">
+          <button id="playRoute" class="cinema-action">▶ Route afspelen</button>
+          <button id="formatBtn" class="cinema-action alt">▯ 9:16</button>
+          <button id="hideOverlay" class="cinema-action alt">◉ Tekst verbergen</button>
+          <button id="exitCinema" class="cinema-action alt">✕ Sluiten</button>
+        </div>
+        <span id="routeNotice" class="route-notice"></span>
+      </div>
+    </main>
+  </div>
+
+  <dialog id="addDialog" class="add-dialog" aria-labelledby="dialogTitle">
+    <form id="adventureForm">
+      <div class="dialog-head"><div><span class="eyebrow">WRITE YOUR STORY</span><h2 id="dialogTitle">Nieuw avontuur</h2></div><button type="button" id="cancelDialogTop" class="dialog-close" aria-label="Sluit formulier">×</button></div>
+      <div class="field-row"><label>Titel* <input name="title" maxlength="100" required placeholder="Bijv. The Unknown Destination"></label><label>Datum <input type="date" name="date"></label></div>
+      <div class="field-row"><label>Categorie<select name="category"><option value="adventure">Avontuur / challenge</option><option value="expedition">Expeditie</option><option value="bucketlist">Bucketlist</option><option value="milestone">Milestone</option></select></label><label>Status<select name="status"><option value="planned">Gepland</option><option value="completed">Voltooid</option></select></label></div>
+      <div class="field-row"><label>Plaats / regio<input name="location" maxlength="100" placeholder="Bijv. Zeeland"></label><label>Land<input name="country" maxlength="70" placeholder="Bijv. Nederland"></label></div>
+      <label>Het verhaal<textarea name="description" maxlength="1300" rows="3" placeholder="Waarom dit avontuur? Wat gebeurde er?"></textarea></label>
+      <label>Wat heb je geleerd / wat maakte het bijzonder?<textarea name="reflection" maxlength="600" rows="2" placeholder="Eén gedachte die je wilt onthouden"></textarea></label>
+      <div class="field-row"><label>Breedtegraad <input name="lat" type="number" min="-90" max="90" step="any" placeholder="51.495"></label><label>Lengtegraad<input name="lng" type="number" min="-180" max="180" step="any" placeholder="4.289"></label></div>
+      <button type="button" class="pick-button" id="pickLocation">◎ Kies locatie op kaart</button>
+      <div class="field-row"><label>Zichtbaarheid<select name="visibility"><option value="private">Privé (alleen in deze browser)</option><option value="public">Publiek (bij export)</option></select></label><label>Afbeelding-URL (optioneel)<input name="image" type="url" placeholder="https://..."></label></div>
+      <p class="privacy-note">Je gegevens worden lokaal opgeslagen. Publiceren op GitHub gebeurt niet automatisch. Zet nooit privé-adressen of persoonlijke notities in de publieke export.</p>
+      <div class="dialog-actions"><button type="button" id="cancelDialog" class="secondary-button">Annuleren</button><button type="submit" class="primary-button">Bewaar avontuur</button></div>
+    </form>
+  </dialog>
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+</body>
+</html>
