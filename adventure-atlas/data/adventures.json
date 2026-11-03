@@ -1,0 +1,113 @@
+{
+  "version": 1,
+  "note": "Publiceer alleen gegevens die je met iedereen wilt delen. Routes met routeAccuracy=schematic zijn GEEN GPS-tracks.",
+  "adventures": [
+    {
+      "id": "pedals-of-honour-2026",
+      "title": "Pedals of Honour",
+      "category": "expedition",
+      "status": "completed",
+      "date": "2026-09-22",
+      "location": "Juno Beach → Bergen op Zoom",
+      "country": "Nederland",
+      "countries": [
+        "Frankrijk",
+        "Nederland"
+      ],
+      "description": "Een zesdaagse fietsexpeditie van Juno Beach in Normandië naar de Grote Markt in Bergen op Zoom. Afgerond op 22 september 2026.",
+      "reflection": "Het volledige persoonlijke verhaal en de etappegegevens kunnen later worden toegevoegd.",
+      "coords": {
+        "lat": 51.494,
+        "lng": 4.29
+      },
+      "route": [
+        {
+          "lat": 49.333,
+          "lng": -0.462
+        },
+        {
+          "lat": 51.494,
+          "lng": 4.29
+        }
+      ],
+      "routeAccuracy": "schematic",
+      "isChallenge": false,
+      "visibility": "public",
+      "image": null
+    },
+    {
+      "id": "noordkaap-doel",
+      "title": "Noordkaap — the long road north",
+      "category": "milestone",
+      "status": "planned",
+      "date": "",
+      "location": "Nordkapp, Noorwegen",
+      "country": "Noorwegen",
+      "description": "Het grote langetermijndoel: met de eigen overlander naar de Noordkaap reizen.",
+      "reflection": "",
+      "coords": {
+        "lat": 71.1725,
+        "lng": 25.7836
+      },
+      "route": [],
+      "routeAccuracy": "",
+      "isChallenge": false,
+      "visibility": "public",
+      "image": null
+    },
+    {
+      "id": "kiruna-bucketlist",
+      "title": "Kiruna — explore the north",
+      "category": "bucketlist",
+      "status": "planned",
+      "date": "",
+      "location": "Kiruna, Zweeds Lapland",
+      "country": "Zweden",
+      "description": "Het hoge noorden van Zweden ontdekken: landschap, klimaat, natuur en de vrijheid van het buitenleven.",
+      "reflection": "",
+      "coords": {
+        "lat": 67.8558,
+        "lng": 20.2253
+      },
+      "route": [],
+      "routeAccuracy": "",
+      "isChallenge": false,
+      "visibility": "public",
+      "image": null
+    },
+    {
+      "id": "dutch-milestones-2026",
+      "title": "Dutch Milestones",
+      "category": "expedition",
+      "status": "planned",
+      "date": "",
+      "location": "Nederland · route volgt",
+      "country": "Nederland",
+      "description": "Geplande eindejaarsexpeditie. Voeg de definitieve route en datums toe zodra ze vaststaan.",
+      "reflection": "",
+      "coords": null,
+      "route": [],
+      "routeAccuracy": "",
+      "isChallenge": false,
+      "visibility": "public",
+      "image": null
+    },
+    {
+      "id": "challenge-001",
+      "title": "Challenge #001 — The Unknown Destination",
+      "category": "adventure",
+      "status": "planned",
+      "date": "2026-11-07",
+      "location": "Bestemming nog onbekend",
+      "country": "",
+      "description": "Een onbekende bestemming bezoeken en minstens één keer bewust iets doen wat ik normaal zou overslaan. Gepland voor het weekend van 7–8 november.",
+      "reflection": "",
+      "coords": null,
+      "route": [],
+      "routeAccuracy": "",
+      "isChallenge": true,
+      "visibility": "public",
+      "image": null
+    }
+  ]
+}
