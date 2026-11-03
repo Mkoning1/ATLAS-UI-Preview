@@ -10,7 +10,7 @@
   const LABELS = {adventure:"Adventure", expedition:"Expedition", bucketlist:"Bucketlist", milestone:"Milestone"};
   const EMOJI = {adventure:"↗", expedition:"⌁", bucketlist:"✦", milestone:"★"};
   const COLORS = {completed:"#c9f276", wishlist:"#7ecad3", future:"#e9ac6e"};
-  let seed = [], drafts = [], filtered = [], activeFilter = "all", selectedId = null;
+  let seed = [], drafts = [], filtered = [], activeFilter = "all", selectedId = null, editingId = null;
   let map, pins, routes, animationLayer, picking = false, animationFrame = null;
   let previousLine = null, toastTimeout = null;
   const current = () => {
@@ -187,6 +187,7 @@
     if (!item) return;
     selectedId = id;
     $("storyPanel").hidden = false;
+    $("deleteStory").hidden = !drafts.some((x)=>x.id===id) || seed.some((x)=>x.id===id);
     $("storyType").textContent = LABELS[item.category] + " · " + (item.status === "completed" ? "completed" : "planned");
     $("storyTitle").textContent = item.title;
     $("storyPlace").textContent = [item.location,item.country,dateLabel(item.date)].filter(Boolean).join("  ·  ");
@@ -231,30 +232,59 @@
     else map.setView([50,8],4);
   }
 
-  function openAdd() {
-    $("adventureForm").reset();
+  function openAdd(item=null) {
+    const form = $("adventureForm");
+    form.reset();
+    editingId = item?.id || null;
+    $("dialogTitle").textContent = item ? "Avontuur bewerken" : "Nieuw avontuur";
+    if (item) {
+      for (const key of ["title","date","category","status","location","country","description","reflection","visibility","image"]) {
+        if(form.elements[key])form.elements[key].value=item[key] || (key==="visibility"?"public":"");
+      }
+      form.elements.lat.value = hasCoords(item) ? item.coords.lat : "";
+      form.elements.lng.value = hasCoords(item) ? item.coords.lng : "";
+    }
     $("addDialog").showModal();
   }
+
   function addAdventure(event) {
     event.preventDefault();
     const values = Object.fromEntries(new FormData($("adventureForm")));
     const hasLat = String(values.lat || "").trim()!=="";
     const hasLng = String(values.lng || "").trim()!=="";
     if (hasLat !== hasLng) { toast("Vul beide coördinaten in, of laat ze allebei leeg."); return; }
+    const existing = editingId ? current().find((item)=>item.id===editingId) : null;
     const created = normalizeItem({
-      id:"adventure-"+crypto.randomUUID(),title:values.title,date:values.date,category:values.category,
-      status:values.status,location:values.location,country:values.country,description:values.description,
-      reflection:values.reflection,visibility:values.visibility,image:values.image,
-      coords:hasLat?{lat:values.lat,lng:values.lng}:null,isChallenge:values.category==="adventure"
+      id:editingId || ("adventure-"+crypto.randomUUID()),title:values.title,date:values.date,
+      category:values.category,status:values.status,location:values.location,
+      country:values.country,description:values.description,reflection:values.reflection,
+      visibility:values.visibility,image:values.image,
+      coords:hasLat?{lat:values.lat,lng:values.lng}:null,
+      route:existing?.route || [],routeAccuracy:existing?.routeAccuracy || "",
+      countries:existing?.countries || [],isChallenge:existing?.isChallenge || values.category==="adventure"
     });
     if (!created) { toast("Controleer de titel en coördinaten."); return; }
-    drafts.push(created);
-    if (!saveDrafts()) { drafts.pop(); return; }
+    const old=[...drafts],index=drafts.findIndex((item)=>item.id===created.id);
+    if(index>=0)drafts[index]=created;
+    else drafts.push(created);
+    if (!saveDrafts()) { drafts=old; return; }
+    editingId=null;
     $("addDialog").close();
     $("searchInput").value="";
     selectFilter("all");
     selectItem(created.id);
     toast("Avontuur lokaal bewaard. Exporteer om een kopie te maken.");
+  }
+
+  function deleteAdventure() {
+    const item=drafts.find((x)=>x.id===selectedId);
+    if (!item || seed.some((x)=>x.id===item.id)) return;
+    if(!window.confirm("Dit lokale avontuur echt verwijderen? Maak eerst een back-up als je het wilt bewaren."))return;
+    const old=[...drafts];
+    drafts=drafts.filter((x)=>x.id!==item.id);
+    if(!saveDrafts()){drafts=old;return;}
+    selectedId=null;$("storyPanel").hidden=true;
+    paint();toast("Avontuur lokaal verwijderd.");
   }
 
   function download(filename, data) {
@@ -377,7 +407,7 @@
     document.querySelectorAll("[data-filter]").forEach((button)=>button.addEventListener("click",()=>selectFilter(button.dataset.filter)));
     $("searchInput").addEventListener("input",paint);
     $("fitAll").addEventListener("click",fitAll);
-    $("newAdventure").addEventListener("click",openAdd);
+    $("newAdventure").addEventListener("click",()=>openAdd());
     $("adventureForm").addEventListener("submit",addAdventure);
     $("cancelDialog").addEventListener("click",()=>$("addDialog").close());
     $("cancelDialogTop").addEventListener("click",()=>$("addDialog").close());
@@ -387,6 +417,8 @@
       toast("Klik op de kaart om je locatie te kiezen.");
     });
     $("closeStory").addEventListener("click",()=>{selectedId=null;$("storyPanel").hidden=true;paint();});
+    $("editStory").addEventListener("click",()=>{const item=current().find((x)=>x.id===selectedId);if(item)openAdd(item);});
+    $("deleteStory").addEventListener("click",deleteAdventure);
     $("showOnMap").addEventListener("click",()=>{
       const item=current().find((x)=>x.id===selectedId);if(item)focusItem(item);
     });
